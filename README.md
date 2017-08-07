@@ -1,5 +1,5 @@
 # tiny_OS
-A TINY OPERA SYSTEM..233333
+A TINY OPERATING SYSTEM..233333
 玩具，玩具．．．
 
 目前只能引导．．．在屏幕上打印hello world...
