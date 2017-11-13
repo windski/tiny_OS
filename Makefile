@@ -3,9 +3,9 @@ all: image
 .PHONY=clean run_qemu, image
 
 image: link
-	dd if=bootsect of=image_TINY bs=512 count=1
-	dd if=setup of=image_TINY bs=512 count=4 seek=1
-	dd if=system of=image_TINY bs=512 seek=5
+	-@dd if=bootsect of=image_TINY bs=512 count=1
+	-@dd if=setup of=image_TINY bs=512 count=4 seek=1
+	-@dd if=system of=image_TINY bs=512 seek=5
 	@ echo "\nImage write Done!!\n"
 
 run_qemu:

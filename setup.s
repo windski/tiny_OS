@@ -119,9 +119,51 @@ end_move:
 	lidt idt_48
 
 # 开启a20 地址线
-	inb $0x92, %al
-	orb $0x02, %al
-	outb %al, $0x92
+
+# Fast A20 Gate
+	# inb $0x92, %al
+	# orb $0x02, %al
+	# outb %al, $0x92
+
+# read 0xee port to enable A20 line, write it to disable A20 line...
+    in $0xee, %al
+    xor %al, %al
+
+# programming 8259A interrupts...
+    movb $0x11, %al                # initialization sequence
+    out %al, $0x20                 # send to 8259A-1
+    .word 0x00eb, 0x00eb
+
+    out %al, $0xa0                 # send to 8259A-1
+    .word 0x00eb, 0x00eb
+
+    movb $0x20, %al                # start of hardware int's(0x20)
+    out %al, $0x21
+    .word 0x00eb, 0x00eb
+
+    movb $0x28, %al                # start of hardware int's(0x28)
+    out %al, $0xa1
+    .word 0x00eb, 0x00eb
+
+    movb $0x04, %al                # set up 8259A-1 master
+    out %al, $0x21
+    .word 0x00eb, 0x00eb
+
+    movb $0x02, %al                # setup 8259A-2 is alive
+    out %al, $0xa1
+    .word 0x00eb, 0x00eb
+
+    movb $0x01, %al
+    out %al, $0x21                 # sent ICW3 8086 model: genaral EOI..
+    .word 0x00eb, 0x00eb
+
+    out %al, $0xa1                 # same as above..
+    .word 0x00eb, 0x00eb
+
+    movb $0xff, %al
+    out %al, $0x21                 # mask off all interrupts for now
+    .word 0x00eb, 0x00eb
+    out %al, $0xa1
 
 # 开启保护模式!
 	movl %cr0, %eax
@@ -155,7 +197,8 @@ gdt:
 	.word 0x00c0
 
 idt_48:
-
+    .word 0
+    .word 0, 0
 
 msg:
 	.byte 13, 10
