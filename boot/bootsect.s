@@ -10,7 +10,7 @@
 
 .code16
 
-.global _bootstart           # start from
+.global _start           # start from
 .global begtext, begdata, begbss, endtext, enddata, endbss
 
 .text
@@ -32,9 +32,9 @@ begbss:
 .equ ROOT_DEV, 0x301          # 钦点/dev/fda为系统镜像所在的设备
 .equ ENDSEG, DEMO_system + SYSSIZE
 
-ljmp $BOOTSEG, $_bootstart
+ljmp $BOOTSEG, $_start
 
-_bootstart:
+_start:
 	movw $BOOTSEG, %ax
 	movw %ax, %ds
 

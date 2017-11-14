@@ -7,7 +7,7 @@
 .equ SYS_IMAGE, 0x1000
 .equ INITSEG, 0x9000
 
-.global _bootstart, begtext, begdata, begbss, endtext, enddata, endbss
+.global _start, begtext, begdata, begbss, endtext, enddata, endbss
 
 .text
 	begtext:
@@ -30,8 +30,10 @@ show:
 	movw $msg, %bp
 	int $0x10
 
-	ljmp $SETUPSEG, $_bootstart
-_bootstart:
+	ljmp $SETUPSEG, $_start
+
+
+_start:
 	movw $INITSEG, %ax
 	movw %ax, %ds
 	movb $0x03, %ah

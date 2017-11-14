@@ -1,0 +1,5 @@
+AS = as
+LD = ld
+OBJCOPY = objcopy
+STRIP = strip
+

@@ -1,32 +1,37 @@
-all: image
+include Makefile.header
 
-.PHONY=clean run_qemu, image
+LDFLAGS += -Ttext 0 -e _startup -nostdlib
+.PHONY: clean run_qemu
 
-image: link
-	-@dd if=bootsect of=image_TINY bs=512 count=1
-	-@dd if=setup of=image_TINY bs=512 count=4 seek=1
-	-@dd if=system of=image_TINY bs=512 seek=5
-	@ echo "\nImage write Done!!\n"
+all: sys_image
 
-run_qemu:
-	- @ qemu-system-i386 -boot a -fda image_TINY
+boot/system.o:
+	@ make system.o -C boot
 
-bootsect.o: bootsect.s
-	as --32 bootsect.s -o bootsect.o
+boot/bootsect:
+	@ make bootsect -C boot
 
-setup.o: setup.s
-	as --32 setup.s -o setup.o
+boot/setup:
+	@ make setup -C boot
 
-system.o: system.s
-	as --32 system.s -o system.o
+kernel/kernel.o:
+	@ make -C kernel
 
-link: bootsect.o ld-bootsect.ld setup.o system.o
-	@ ld -T ld-bootsect.ld bootsect.o -o bootsect
-	@ objcopy -O binary bootsect
-	@ ld -T ld-bootsect.ld setup.o -o setup
-	@ objcopy -O binary setup
-	@ ld -T ld-bootsect.ld system.o -o system
-	@ objcopy -O binary system
+system:boot/system.o kernel/kernel.o
+	@ $(LD) $(LDFLAGS) boot/system.o kernel/kernel.o -o system.sym
+	@ $(STRIP) system.sym -o system.o
+	@ $(OBJCOPY) -O binary -R .note -R .comment system.o system
+
+sys_image:boot/setup boot/bootsect system
+	@ dd if=boot/bootsect of=sys_image bs=512 count=1
+	@ dd if=boot/setup of=sys_image bs=512 count=4 seek=1
+	@ dd if=system of=sys_image bs=512 count=4 seek=5
+	@ echo "Build System Image Done!!"
+
+run_demu: sys_image
+	qemu-system-i386 -boot a -fda sys_image
 
 clean:
-	- @ rm ./*.o bootsect setup system
+	@ rm sys_image *.o *.sym system
+	@ make clean -C boot
+	@ make clean -C kernel
