@@ -21,7 +21,7 @@ sudo apt-get install qemu build-essential
 ------------------------
 
 ```
-git clone git@github.com:windski/tiny_OS.git
+git clone https://github.com/windski/tiny_OS.git
 make
 make run_qemu
 ```

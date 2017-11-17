@@ -32,6 +32,6 @@ run_demu: sys_image
 	qemu-system-i386 -boot a -fda sys_image
 
 clean:
-	@ rm sys_image *.o *.sym system
-	@ make clean -C boot
-	@ make clean -C kernel
+	-@ rm sys_image *.o *.sym system
+	-@ make clean -C boot
+	-@ make clean -C kernel

@@ -34,4 +34,4 @@ system.o: system.s
 	@ # $(OBJCOPY) -R .pdr -R .comment -R.note -S -O binary system
 	
 clean:
-	- @ rm ./*.o ./*.debug bootsect setup system
+	- @ rm ./*.o ./*.debug bootsect setup

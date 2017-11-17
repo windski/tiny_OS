@@ -24,11 +24,11 @@ show:
 	xor %bh, %bh
 	int $0x10
 
-	movw $0x000a, %bx
-	movw $0x1301, %ax
-	movw $STR_LEN, %cx
-	movw $msg, %bp
-	int $0x10
+    movw $0x000a, %bx
+    movw $0x1301, %ax
+    movw $STR_LEN, %cx
+    movw $msg, %bp
+    int $0x10
 
 	ljmp $SETUPSEG, $_start
 
@@ -123,13 +123,13 @@ end_move:
 # 开启a20 地址线
 
 # Fast A20 Gate
-	# inb $0x92, %al
-	# orb $0x02, %al
-	# outb %al, $0x92
+	inb $0x92, %al
+	orb $0x02, %al
+	outb %al, $0x92
 
 # read 0xee port to enable A20 line, write it to disable A20 line...
-    in $0xee, %al
-    xor %al, %al
+    # in $0xee, %al
+    # xor %al, %al
 
 # programming 8259A interrupts...
     movb $0x11, %al                # initialization sequence
@@ -203,7 +203,7 @@ idt_48:
     .word 0, 0
 
 msg:
-	.byte 13, 10
-	.ascii "Welcome to my OPERATING SYSTEM!"
-	.byte 13, 10, 13, 10
+    .byte 13, 10
+    .ascii "Welcome to my Operating System!"
+    .byte 13, 10, 13, 10
 

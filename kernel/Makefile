@@ -4,7 +4,7 @@ LD = ld
 OBJCOPY = objcopy
 STRIP = strip
 
-OBJS = printk.o
+OBJS = printk.o main.o
 
 LDFLAGS += -r
 CFLAGS += -I../include
@@ -21,4 +21,4 @@ kernel.o: $(OBJS)
 
 
 clean:
-	rm -f $(OBJS) kernel.o
+	-@ rm -f $(OBJS) kernel.o
