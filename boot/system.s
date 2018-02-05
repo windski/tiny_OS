@@ -1,11 +1,12 @@
 # This program will be covered by the page table...
 
-.code32
 .text
 
-.global _startup, _idt, _gdt, tmp_floppy_area
+.global _idt, _gdt, tmp_floppy_area, _pg_dir
 
 _pg_dir:
+.global _startup
+
 _startup:
 # set up data segment register
     movl $0x10, %eax
@@ -54,21 +55,20 @@ check_x87:
 
 
 setup_idt:
-    lea ignore_int, %esp
+    lea ignore_int, %edx
     movl $0x0008000, %eax
     movw %dx, %ax
     movw $0x8e00, %dx
     lea _idt, %edi
-    movl $256, %ecx
+    movw $256, %cx
 
 rp_sidt:
     movl %eax, (%edi)
     movl %edx, 4(%edi)
     addl $8, %edi
-    dec %ecx
+    dec %cx
     jne rp_sidt
     lidt idt_descr                       # load IDT Register
-    ret
 
 setup_gdt:
     lgdt gdt_descr
@@ -92,9 +92,9 @@ _tmp_floppy_area:
     .fill 1024, 1, 0
 
 after_page_tables:
-    pushl $0
-    pushl $0
-    pushl $0
+    push $0
+    push $0
+    push $0
     pushl $L6
     pushl $main
     jmp setup_pages
@@ -110,18 +110,19 @@ ignore_int:
     pushl %eax
     pushl %ecx
     pushl %edx
-    pushw %ds
-    pushw %es
-    pushw %fs
+    push %ds
+    push %es
+    push %fs
     movl $0x10, %eax
-    movw %ax, %ds
-    movw %ax, %es
-    movw %ax, %fs
+    mov %ax, %ds
+    mov %ax, %es
+    mov %ax, %fs
 #TODO: complete printk.c code...
 
-    popw %fs
-    popw %es
-    popw %ds
+    popl %eax
+    pop %fs
+    pop %es
+    pop %ds
     popl %edx
     popl %ecx
     popl %eax
@@ -146,8 +147,8 @@ setup_pages:
     xorl %eax, %eax
     movl %eax, %cr3
     movl %cr0, %eax
-    orl $0x80000000, %eax
-    movl %eax, %cr0
+    orl $0x80000000, %eax               # set the paging bit
+    movl %eax, %cr0                     # Enable Paging!
     ret
 
 .align 2

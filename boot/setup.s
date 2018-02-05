@@ -88,7 +88,7 @@ _start:
 	cmp $3, %ah
 	je is_disk1
 
-no_disk1:
+no_disk1:             # 没有第二块,清了它
 	movw $INITSEG, %ax
 	movw %ax, %es
 	movw $0x0090, %di
@@ -100,6 +100,7 @@ is_disk1:
 	cli
 	
 # move the system image
+# 从0x1000:0000 移动到0x0000:0000
 	movw $0x0000, %ax
 	cld
 do_move:
@@ -117,8 +118,8 @@ do_move:
 end_move:
 	movw $SETUPSEG, %ax
 	movw %ax, %ds
-	lgdt gdt_48
 	lidt idt_48
+	lgdt gdt_48
 
 # 开启a20 地址线
 
@@ -185,6 +186,10 @@ gdt_48:
 	.word 0x800
 	.word 512+gdt, 0x9
 
+idt_48:
+    .word 0
+    .word 0, 0
+
 gdt:
 	.word 0, 0, 0, 0           # 保留
 
@@ -197,10 +202,6 @@ gdt:
 	.word 0x0000
 	.word 0x9200
 	.word 0x00c0
-
-idt_48:
-    .word 0
-    .word 0, 0
 
 msg:
     .byte 13, 10
