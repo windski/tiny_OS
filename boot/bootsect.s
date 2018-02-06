@@ -10,6 +10,7 @@
 
 .code16
 
+.equ SYSSIZE, 0x3000     # System size in clicks(1 click = 16 bits)
 .global _start           # start from
 .global begtext, begdata, begbss, endtext, enddata, endbss
 
@@ -23,7 +24,6 @@ begbss:
 .text
 
 .equ SETUPLEN, 0x04
-.equ SYSSIZE, 0x3000          # System size in clicks(1 click = 16 bits)
 .equ BOOTSEG, 0x07c0
 .equ INITSEG, 0x9000          # Move the bootsect.s here
 .equ DEMO_system, 0x1000      # Toys System will load...here(real mode)
@@ -67,7 +67,7 @@ _load__image:
 	movw $INITSEG, %ax
 	movw %ax, %es
 	movw $0x0200, %bx
-	movb $0x02, %ah
+	movb $02, %ah
 	movb $4, %al
 	int $0x13
 	jnc _load__ok              # no error.. move on..

@@ -117,7 +117,8 @@ ignore_int:
     mov %ax, %ds
     mov %ax, %es
     mov %ax, %fs
-#TODO: complete printk.c code...
+    pushl $int_msg
+    call printk
 
     popl %eax
     pop %fs
@@ -144,8 +145,12 @@ setup_pages:
 1:  stosl
     subl $0x1000, %eax
     jge 1b
+
+# Set up the Page Dir register cr3
     xorl %eax, %eax
     movl %eax, %cr3
+
+# the enable the page
     movl %cr0, %eax
     orl $0x80000000, %eax               # set the paging bit
     movl %eax, %cr0                     # Enable Paging!

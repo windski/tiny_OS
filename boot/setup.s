@@ -3,7 +3,7 @@
 .text
 
 .equ SETUPSEG, 0x9020
-.equ STR_LEN, 36
+.equ STR_LEN, 23
 .equ SYS_IMAGE, 0x1000
 .equ INITSEG, 0x9000
 
@@ -34,6 +34,7 @@ show:
 
 
 _start:
+# 获取光标位置
 	movw $INITSEG, %ax
 	movw %ax, %ds
 	movb $0x03, %ah
@@ -46,14 +47,16 @@ _start:
 	int $0x15
 	movw %ax, %ds:2
 
+# 读取显卡显示模式
 	movb $0x0f, %ah
 	int $0x10
 	movw %bx, %ds:4
 	movw %ax, %ds:6
 
+# 检查显示方式
 	movb $0x12, %ah
 	movb $0x10, %bl
-	int $10
+	int $0x10                   # <- bug here ...damn...now fixed...应该是0x10中断,写成了10...
 	movw %ax, %ds:8
 	movw %bx, %ds:10
 	movw %cx, %ds:12
@@ -66,7 +69,7 @@ _start:
 	lds %ds:4*0x41, %si
 	movw $INITSEG, %ax
 	movw %ax, %es
-	movw $0x0000, %di
+	movw $0x0080, %di
 	movw $0x10, %cx
 	rep movsb
 
@@ -124,13 +127,13 @@ end_move:
 # 开启a20 地址线
 
 # Fast A20 Gate
-	inb $0x92, %al
-	orb $0x02, %al
-	outb %al, $0x92
+	; inb $0x92, %al
+	; orb $0x02, %al
+	; outb %al, $0x92
 
 # read 0xee port to enable A20 line, write it to disable A20 line...
-    # in $0xee, %al
-    # xor %al, %al
+    in $0xee, %al
+    xor %al, %al
 
 # programming 8259A interrupts...
     movb $0x11, %al                # initialization sequence
@@ -205,6 +208,6 @@ gdt:
 
 msg:
     .byte 13, 10
-    .ascii "Welcome to my Operating System!"
+    .ascii "Booting success!!"
     .byte 13, 10, 13, 10
 

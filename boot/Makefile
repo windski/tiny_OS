@@ -29,9 +29,9 @@ setup: setup.s
 
 system.o: system.s
 	$(AS) -n system.s -o system.o
-	@ # $(LD) $(LDFLAGS) -o system system.o
-	@ # cp -f system system.debug
-	@ # $(OBJCOPY) -R .pdr -R .comment -R.note -S -O binary system
+	#@ $(LD) $(LDFLAGS) -o system system.o
+	#@ cp -f system system.debug
+	#@ $(OBJCOPY) -R .pdr -R .comment -R.note -S -O binary system
 	
 clean:
 	- @ rm ./*.o ./*.debug bootsect setup

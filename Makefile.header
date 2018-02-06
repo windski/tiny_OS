@@ -2,4 +2,4 @@ AS = as
 LD = ld
 OBJCOPY = objcopy
 STRIP = strip
-
+CC = gcc -m32 -march=i386
