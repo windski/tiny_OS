@@ -25,7 +25,7 @@ system:boot/system.o kernel/kernel.o
 sys_image:boot/setup boot/bootsect system
 	@ dd if=boot/bootsect of=sys_image bs=512 count=1
 	@ dd if=boot/setup of=sys_image bs=512 count=4 seek=1
-	@ dd if=system of=sys_image bs=512 count=4 seek=5
+	@ dd if=system of=sys_image bs=512 seek=5
 	@ echo "Build System Image Done!!"
 
 run_demu: sys_image
