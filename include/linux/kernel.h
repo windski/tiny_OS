@@ -13,6 +13,8 @@ void roll_screen(void);
 void k_memcpy(char *dest, char *src, int count, int size);
 void k_print_num(int num, int base, int sign);
 
+void panic(const char *);
+
 int video_x, video_y;
 
 

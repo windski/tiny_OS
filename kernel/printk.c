@@ -20,7 +20,7 @@ struct {
 extern int video_x;
 extern int video_y;
 
-char *video_buffer = VIDEO_MEM;
+char *video_buffer = (char *)VIDEO_MEM;
 
 struct video_info {
     unsigned int retval;
@@ -40,7 +40,7 @@ int video_gety(void)
 
 void video_init(void)
 {
-    struct video_info *info = 0x9000;
+    struct video_info *info = (struct video_info *)0x9000;
 
     video_x = 0;
     video_y = 0;
@@ -80,11 +80,12 @@ void update_cursor(int row, int col)
     unsigned int pos = (row * VIDEO_X) + col;
 
     // LOW Cursor port to VGA Index Register
-    outb(0x3d4, 0x0f);
-    outb(0x3d5, (unsigned char)(pos & 0xff));
+    outb(0x0f, 0x3d4);
+    outb((unsigned char)(pos & 0xff), 0x3d5);
     // High .....
-    outb(0x3d4, 0x0e);
-    outb(0x3d5, (unsigned char)((pos >> 8) & 0xff));
+    outb(0x0e, 0x3d4);
+    outb((unsigned char)((pos >> 8) & 0xff), 0x3d5);
+    return ;
 }
 
 
@@ -107,23 +108,26 @@ void printk(char *format, ...)
             break;
         switch(ch) {
             case 'd':
-            k_print_num(va_arg(ap, int), 10, 1);
-            break;
-        case 'u':
-            k_print_num(va_arg(ap, int), 10, 0);
-            break;
-        case 'x':
-            k_print_num(va_arg(ap, int), 16, 0);
-            break;
-        case 's':
-            str = va_arg(ap, char*);
-            while(*str) {
-                vga_putchar(*str);
-                str++;
-            }
-            break;
-        case '%':
-            vga_putchar('%');
+                k_print_num(va_arg(ap, int), 10, 1);
+                break;
+            case 'u':
+                k_print_num(va_arg(ap, int), 10, 0);
+                break;
+            case 'x':
+                k_print_num(va_arg(ap, int), 16, 0);
+                break;
+            case 'p':
+                k_print_num(va_arg(ap, int), 16, 0);
+                break;
+            case 's':
+                str = va_arg(ap, char*);
+                while(*str) {
+                    vga_putchar(*str);
+                    str++;
+                }
+                break;
+            case '%':
+                vga_putchar('%');
         }
     }
 }
@@ -172,10 +176,14 @@ void vga_putchar(char ch)
         video_y++;
     }
 
-    if(video_y >=VIDEO_Y) {
-        
+    if(video_y >= VIDEO_Y) {
+        roll_screen();
+        video_x = 0;
+        video_y = VIDEO_Y - 1;
     }
 
+    update_cursor(video_y, video_x);
+    return ;
 }
 
 
