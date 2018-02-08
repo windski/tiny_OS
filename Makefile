@@ -2,7 +2,7 @@ include Makefile.header
 
 LDFLAGS += -Ttext 0 -e _startup -nostdlib
 .PHONY: clean run_qemu
-
+OBJS = boot/system.o kernel/kernel.o mm/mm.o
 all: sys_image
 
 boot/system.o:
@@ -17,12 +17,15 @@ boot/setup:
 kernel/kernel.o:
 	@ make -C kernel
 
-system:boot/system.o kernel/kernel.o
-	@ $(LD) $(LDFLAGS) boot/system.o kernel/kernel.o -o system.sym
+mm/mm.o:
+	@make -C mm
+
+system: $(OBJS)
+	@ $(LD) $(LDFLAGS) $(OBJS) -o system.sym
 	@ $(STRIP) system.sym -o system.o
 	@ $(OBJCOPY) -O binary -R .note -R .comment system.o system
 
-sys_image:boot/setup boot/bootsect system
+sys_image: boot/setup boot/bootsect system
 	@ dd if=boot/bootsect of=sys_image bs=512 count=1
 	@ dd if=boot/setup of=sys_image bs=512 count=4 seek=1
 	@ dd if=system of=sys_image bs=512 seek=5
@@ -35,3 +38,4 @@ clean:
 	-@ rm sys_image *.o *.sym system
 	-@ make clean -C boot
 	-@ make clean -C kernel
+	-@ make clean -C mm

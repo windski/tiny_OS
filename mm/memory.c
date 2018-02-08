@@ -1,5 +1,5 @@
-#include <asm/system.h>
 #include <linux/kernel.h>
+#include <asm/system.h>
 
 /* these are not to be changed without changing system.s */
 #define LOW_MEM 0x100000
@@ -18,8 +18,7 @@ static inline void oom(void)
 #define invalidate() __asm__("movl %%eax, %%cr3"::"a" (0))
 #define copy_page(from, to)                     \
     __asm__("cld; rep; movsl"                   \
-            ::"S" (from), "D" (to), "c" (1024)  \
-            :"cx", "di", "si")
+            ::"S" (from), "D" (to), "c" (1024))
 
 static long HIGH_MEMORY = 0;
 
@@ -180,5 +179,87 @@ unsigned long put_page(unsigned long page, unsigned long addr)
     pg_table[(addr >> 12) & 0x3ff] = page | 7;
 
     return page;
+}
+
+
+void get_empty_page(unsigned long addr)
+{
+    unsigned long tmp;
+
+    if(!(tmp = get_free_page()) || !put_page(tmp, addr)) {
+        free_page(tmp);
+        oom();
+    }
+    return ;
+}
+
+// 缺页异常处理函数
+void do_no_page(unsigned long error_code, unsigned long addr)
+{
+    unsigned long page;
+
+    addr &= 0xfffff000;
+    if(!(page = get_free_page()))
+        oom();
+    if(put_page(page, addr))
+        return ;
+    free_page(page);
+    oom();
+}
+
+
+// 解除页面的写入保护
+void un_wp_page(unsigned long *table_entry)
+{
+    unsigned long old_page, new_page;
+
+    old_page = *table_entry & 0xfffff000;
+
+    // 页面在1MB之上
+    if(old_page >= LOW_MEM && mem_map[MAP_NR(old_page)] == 1) {
+        *table_entry |= 2;
+        invalidate();
+        return ;
+    }
+
+    // 无法分配新的页面
+    if(!(new_page = get_free_page())) {
+        oom();
+    }
+
+    // 页面被共享,现在进行复制,为它开辟一块新的页面
+    if(old_page >= LOW_MEM)
+        mem_map[MAP_NR(old_page)]--;
+    *table_entry = new_page |= 7;
+    invalidate();
+    copy_page(old_page, new_page);
+    return ;
+}
+
+
+void do_wp_page(unsigned long error_code, unsigned long addr)
+{
+    un_wp_page((unsigned long *)(((addr >> 10) & 0xffc) +
+                ((*(unsigned long *)((addr >> 20) & 0xffc))) & 0xfffff000));
+}
+
+
+// 写页面验证,保证页面页面也如的合法性,如果不合法, 调用相关的处理函数
+void write_verify(unsigned long addr)
+{
+    unsigned long page;
+
+    // 检查页目录是否存在
+    if(!((page = *((unsigned long *) ((addr >> 20) & 0xffc)) ) & 1)) {
+        return ;
+    }
+
+    // 取页表首地址
+    page &= 0xfffff000;
+    page += ((addr >> 10) & 0xffc);
+    if((3 & *(unsigned long *)page) == 1)           // 页表P = 1, R/W = 0
+        un_wp_page((unsigned long *)page);
+
+    return ;
 }
 

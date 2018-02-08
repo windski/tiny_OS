@@ -17,21 +17,21 @@ all: bootsect setup system.o
 
 bootsect: bootsect.s
 	$(AS) -n bootsect.s -o bootsect.o
-	@ $(LD) $(LDFLAGS) -o bootsect bootsect.o
+	$(LD) $(LDFLAGS) -o bootsect bootsect.o
 	@ cp -f bootsect bootsect.debug
-	@ $(OBJCOPY) -R .pdr -R .comment -R.note -S -O binary bootsect
+	$(OBJCOPY) -R .pdr -R .comment -R.note -S -O binary bootsect
 
 setup: setup.s
 	$(AS) -n setup.s -o setup.o
-	@ $(LD) $(LDFLAGS) -o setup setup.o
+	$(LD) $(LDFLAGS) -o setup setup.o
 	@ cp -f setup setup.debug
-	@ $(OBJCOPY) -R .pdr -R .comment -R.note -S -O binary setup
+	$(OBJCOPY) -R .pdr -R .comment -R.note -S -O binary setup
 
 system.o: system.s
 	$(AS) -n system.s -o system.o
-	#@ $(LD) $(LDFLAGS) -o system system.o
-	#@ cp -f system system.debug
-	#@ $(OBJCOPY) -R .pdr -R .comment -R.note -S -O binary system
+	@# $(LD) $(LDFLAGS) -o system system.o
+	@# cp -f system system.debug
+	@# $(OBJCOPY) -R .pdr -R .comment -R.note -S -O binary system
 	
 clean:
 	- @ rm ./*.o ./*.debug bootsect setup
