@@ -93,7 +93,7 @@ _print_msg:
 	movw $str_len, %cx         # set the output length
 	movw $0x0007, %bx          # page 0, color = 0x07 随便选一个颜色...
 	movw $string, %bp
-	movw 0x1301, %ax
+	movw $0x1301, %ax
 	int $0x10
 
 	movw $DEMO_system, %ax
