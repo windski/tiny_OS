@@ -63,10 +63,10 @@ void video_clear(void)
 
 void vga_putchar_at(char ch, int x, int y, int attr)
 {
-    if(x >= 80)
-        x = 80;
-    if(y >= 25)
-        y = 25;
+    if(x >= VIDEO_X)
+        x = VIDEO_X;
+    if(y >= VIDEO_Y)
+        y = VIDEO_Y;
 
     // Previous code : (video_buffer + 2 * x + 80 * y) (suck)
     *(video_buffer + 2 * (x + 80 * y)) = ch;
@@ -191,8 +191,8 @@ void roll_screen(void)
 {
     int i;
     // Copy line A + 1 to line A
-    for(i = 1; i < VIDEO_X; i++) {
-        k_memcpy(video_buffer + (i + 1) * 80 * 2,
+    for(i = 1; i < VIDEO_Y; i++) {
+        k_memcpy(video_buffer + (i - 1) * 80 * 2,
                 video_buffer + i * 80 * 2,
                 VIDEO_X,
                 sizeof(char) * 2);
