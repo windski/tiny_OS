@@ -17,7 +17,7 @@ static inline void oom(void)
 // 刷新缓存页
 #define invalidate() __asm__("movl %%eax, %%cr3"::"a" (0))
 #define copy_page(from, to)                     \
-    __asm__("cld; rep; movsl"                   \
+    __asm__("cld; rep; movsl;"                  \
             ::"S" (from), "D" (to), "c" (1024))
 
 static long HIGH_MEMORY = 0;
