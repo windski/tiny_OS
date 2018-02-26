@@ -4,7 +4,7 @@ LD = ld
 OBJCOPY = objcopy
 STRIP = strip
 
-OBJS = printk.o main.o panic.o
+OBJS = printk.o main.o panic.o asm.o traps.o
 
 LDFLAGS += -r
 CFLAGS += -I../include
