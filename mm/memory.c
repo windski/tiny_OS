@@ -263,3 +263,65 @@ void write_verify(unsigned long addr)
     return ;
 }
 
+
+// copy_page_table 用来复制线性地址连续一页的空间到另一个线性地址
+// 不过,仅仅复制其页表内容,不复制物理页面内容,
+// 当form = 0时,表示从内核复制,这时只复制640KB, 不会复制4MB
+int copy_page_tables(unsigned long from, unsigned long to, unsigned long size)
+{
+    unsigned long *from_page_table;
+    unsigned long *to_page_table;
+    unsigned long *from_dir, *to_dir;
+    unsigned long this_page;
+    unsigned long nr;
+
+    if((from & 0x3fffff) || (to & 0x3fffff)) {
+        panic("copy_page_tables called with wrong alignment");
+    }
+
+    // 获取线性地址的对应的页目录项
+    from_dir = 0 + (unsigned long *)((from >> 20) & 0xffc);
+    to_dir = 0 + (unsigned long *)((to >> 20) & 0xffc);
+    size = ((unsigned)(size + 0x3fffff)) >> 22;
+
+    for( ; size --> 0; from_dir++, to_dir++) {
+        if(1 & *to_dir) {
+            panic("copy_page_tables: already exists");
+        }
+
+        // from_dir is not exists,and skip..
+        if(!(1 & *from_dir)) {
+            continue;
+        }
+        if(!(to_page_table = (unsigned long) get_free_page())) {
+            return -1;
+        }
+        *to_dir = ((unsigned long)to_page_table | 7);
+
+        // 判断是不是内核页,如果是就只copy 640KB...
+        nr = (from == 0) ? 0xA0:1024;
+
+        for( ; nr --> 0; from_page_table++, to_page_table++) {
+            this_page = *from_page_table;
+            if(!(1 & this_page)) {
+                continue;
+            }
+
+            // set read only..
+            this_page &= ~2;
+            *to_page_table = this_page;
+
+            // 如果复制的页面地址高于LOW_MEM, 说明不是从内核空间复制同时把原页面也设置为只读,
+            // 这样二者共享了物理页面,如果向任何一个页面写入都会引发
+            // 页面保护异常(Page Fault), 触发写时复制(Copy On Write)
+            if(this_page > LOW_MEM) {
+                *from_page_table = this_page;
+                mem_map[MAP_NR(this_page)]++;
+            }
+        }
+    }
+
+    invalidate();
+    return 0;
+}
+

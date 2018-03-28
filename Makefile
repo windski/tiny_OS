@@ -31,7 +31,7 @@ sys_image: boot/setup boot/bootsect system
 	@ dd if=system of=sys_image bs=512 seek=5
 	@ echo "Build System Image Done!!"
 
-run_demu: sys_image
+run_qemu: sys_image
 	qemu-system-i386 -boot a -fda sys_image
 
 clean:
