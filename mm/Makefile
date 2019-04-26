@@ -5,7 +5,7 @@ include ../Makefile.header
 LDFLAGS += -r
 CFLAGS += -I../include
 
-OBJS = memory.o page.o
+OBJS = memory.o page.o test.o
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $*.o

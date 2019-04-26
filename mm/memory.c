@@ -156,7 +156,7 @@ unsigned long put_page(unsigned long page, unsigned long addr)
     if(page < LOW_MEM || page >= HIGH_MEMORY)
         printk("Trying to put page %p at %p\n", page, addr);
 
-    // mem_map 中此页的状态为unser状态
+    // mem_map 中此页的状态为unset状态
     if(mem_map[MAP_NR(page)] != 1)
         printk("mem_map disagree with %x at %x\n", page, addr);
 
@@ -171,10 +171,12 @@ unsigned long put_page(unsigned long page, unsigned long addr)
             printk("No FREE Page!\n");
             return 0;
         }
+
         *pg_table = tmp | 7;
         printk("tmp = %x\n, Page Table = %x\n", tmp, *pg_table);
         pg_table = (unsigned long *)tmp;
     }
+
     printk("Put Page success\n");
     pg_table[(addr >> 12) & 0x3ff] = page | 7;
 
@@ -293,7 +295,7 @@ int copy_page_tables(unsigned long from, unsigned long to, unsigned long size)
         if(!(1 & *from_dir)) {
             continue;
         }
-        if(!(to_page_table = (unsigned long) get_free_page())) {
+        if(!(to_page_table = (unsigned long *) get_free_page())) {
             return -1;
         }
         *to_dir = ((unsigned long)to_page_table | 7);
