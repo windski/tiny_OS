@@ -1,5 +1,6 @@
 #include <linux/kernel.h>
 #include <asm/system.h>
+#include <linux/mm.h>
 
 /* these are not to be changed without changing system.s */
 #define LOW_MEM 0x100000

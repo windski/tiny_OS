@@ -1,4 +1,5 @@
 #include <linux/kernel.h>
+#include <linux/mm.h>
 
 #define invalidate() \
     __asm__ volatile("mov %%eax, %%cr3"::"a"(0))
@@ -56,7 +57,20 @@ void print_mminfo(unsigned long addr)
     }
 
     printk("]\n");
-    printk("Phyaddr: 0x%x", (*pte & 0xfffff000));
+    printk("Phyaddr: 0x%x\n", (*pte & 0xfffff000));
+}
+
+void mm_setread_only(unsigned long addr)
+{
+    unsigned long *pte = linear_to_pte(addr);
+
+    printk("\nBefore: 0x%x ", *pte);
+    *pte = *pte & 0xfffffffd;
+
+    printk(" After: 0x%x\n", *pte);
+    invalidate();
+
+    return ;
 }
 
 int mmtest_main(void)
@@ -68,6 +82,21 @@ int mmtest_main(void)
 
     printk("\nPrint the page info of address at 0xdad233\n");
     print_mminfo(0xdad233);
+
+    printk("\nmake memory read only\n");
+    mm_setread_only(0xdad233);
+    unsigned long *x = (unsigned long *)0xdad233;
+    x = 0xdad233;
+
+    asm volatile(
+            "mov %%cr0, %%eax\n\t"
+            "orl $0x00010000, %%eax\n\t"
+            "mov %%eax, %%cr0\n\t"
+            ::
+    );
+
+    print_mminfo(0xdad233);
+
     /* try_oom(); */
 }
 
