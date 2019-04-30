@@ -6,6 +6,7 @@ extern int video_y;
 
 extern void mem_init(unsigned long, unsigned long);
 extern void mmtest_main(void);
+extern void print_mminfo(unsigned long);
 
 void main()
 {
