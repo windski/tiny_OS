@@ -6,6 +6,15 @@
 #include <asm/io.h>
 #include <linux/sched.h>
 
+
+union task_union {
+    struct task_struct task;
+    char stack[PAGE_SIZE];
+};
+
+// TODO: fix the bug here...
+/* static union task_union init_task = {INIT_TASK, }; */
+
 void test_timer_interrupt(void);
 
 void init_timer()

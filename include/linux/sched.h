@@ -104,5 +104,33 @@ struct task_struct {
     struct tss_struct tss;
 };
 
+
+#define INIT_TASK       \
+/* state info */        {0, 15, 15,         \
+/* signals */           0, {{}, }, 0,       \
+/* exit_code, brk */    0, 0, 0, 0, 0, 0,   \
+/* pid */               0, -1, 0, 0, 0,     \
+/* uid */               0, 0, 0, 0, 0, 0,   \
+/* alarm, ... */        0, 0, 0, 0, 0, 0,   \
+/* math */              0,                  \
+/* tty */               0,                  \
+/* ldt */   {                               \
+                {0, 0},                     \
+                {0x9f, 0xc0fa00},           \
+                {0x9f, 0xc0f200},           \
+            },                              \
+/* TSS */   { 0,                            \
+                PAGE_SIZE+(long)&init_task, \
+                0x10, 0, 0, 0, 0,           \
+                (long)&pg_dir,              \
+                0, 0, 0, 0, 0, 0, 0, 0,     \
+                0, 0, 0x17, 0x17, 0x17,     \
+                0x17, 0x17, 0x17,           \
+                _LDT(0), 0x80000000,        \
+                {}                          \
+            }                               \
+}
+
+
 #endif
 
