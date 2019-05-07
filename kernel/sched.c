@@ -13,7 +13,21 @@ union task_union {
 };
 
 // TODO: fix the bug here...
-/* static union task_union init_task = {INIT_TASK, }; */
+static union task_union init_task = {INIT_TASK, };
+
+int count = 0;
+long volatile j = 0;
+void do_timer(long cpl)
+{
+    j++;
+    count++;
+    if(count == 10) {
+        printk("jiffies = %d\n", j);
+        count = 0;
+    }
+    outb(0x20, 0x20);
+}
+
 
 void test_timer_interrupt(void);
 

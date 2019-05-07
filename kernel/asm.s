@@ -6,6 +6,7 @@
 
 # flag here..
 .global coprocessor_error, parallel_interrupt, device_not_available
+.global test_timer_interrupt
 
 
 divide_error:
@@ -140,6 +141,12 @@ stack_segment:
 general_protection:
     pushl $do_general_protection
     jmp error_code
+
+# for test
+test_timer_interrupt:
+    pushl $do_timer
+    jmp no_error_code
+
 
 # coprocessor error 
 # TODO: 以后会有的,*(FLAG~)

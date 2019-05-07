@@ -122,7 +122,7 @@ struct task_struct {
 /* TSS */   { 0,                            \
                 PAGE_SIZE+(long)&init_task, \
                 0x10, 0, 0, 0, 0,           \
-                (long)&pg_dir,              \
+                (long)&_pg_dir,              \
                 0, 0, 0, 0, 0, 0, 0, 0,     \
                 0, 0, 0x17, 0x17, 0x17,     \
                 0x17, 0x17, 0x17,           \
@@ -130,6 +130,30 @@ struct task_struct {
                 {}                          \
             }                               \
 }
+
+
+#define FIRST_TSS_ENTRY 4
+#define FIRST_LDT_ENTRY (FIRST_TSS_ENTRY + 1)
+
+// 在全局表中的第n个任务的TSS描述符的索引号
+// 第一个TSS的入口为4 << 3
+#define _TSS(n) ((((unsigned long) n) << 4) + (FIRST_TSS_ENTRY) << 3)
+#define _LDT(n) ((((unsigned long) n) << 4) + (FIRST_LDT_ENTRY) << 3)
+
+// 加载第n个任务的任务管理器tr
+#define ltr(n) volatile __asm__("ltr %%eax" :: "a"(_TSS(n)))
+// 加载第n个任务的局部描述符表寄存器ldtr
+#define lldt(n) volatile __asm__("lltd %%eax" :: "a"(_LDT(n)))
+
+// 取当前的业务号
+#define str(n) volatile __asm__(                \
+        "str %%ax\n\t"                          \
+        "subl %2, %%eax\n\t"                    \
+        "shrl $4, %%eax\n\t"                    \
+        : "=a" (n)                              \
+        : "a" (0), "i" (FIRST_TSS_ENTRY) << 3   \
+    )
+
 
 
 #endif
