@@ -12,8 +12,12 @@ union task_union {
     char stack[PAGE_SIZE];
 };
 
-// TODO: fix the bug here...
 static union task_union init_task = {INIT_TASK, };
+
+struct task_struct *current = &(init_task);
+
+long user_task[PAGE_SIZE >> 2];
+long startup_time;
 
 int count = 0;
 long volatile j = 0;
