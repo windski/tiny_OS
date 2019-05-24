@@ -14,8 +14,14 @@ void main()
     printk("Hello World\n");
     printk(" :) \nWelcome to my Operating System!(NO, lol)\n");
 
-    mem_init(0x100000, 0x1000000);
-    mmtest_main();
+    /* sched_init(); */
+    trap_init();
+    init_timer();
+
+    mem_init(0x100000, 0x3000000);
+    /* mmtest_main(); */
+
+    sti();
 
     while(1);
 }

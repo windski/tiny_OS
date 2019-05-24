@@ -6,9 +6,9 @@ page_fault:
     xchgl %eax, (%esp)
     pushl %ecx
     pushl %edx
-    push %ds
-    push %es
-    push %fs
+    pushw %ds
+    pushw %es
+    pushw %fs
     movl $0x10, %edx
     movw %dx, %ds
     movw %dx, %es

@@ -4,7 +4,7 @@
 #define iret() __asm__("iert"::)
 
 #define _set_gate(gate_addr, type, dpl, addr)                       \
-    __asm__("movw %%dx, %%ax\n\t"                                   \
+    __asm__ volatile ("movw %%dx, %%ax\n\t"                         \
             "movw %0, %%dx\n\t"                                     \
             "movl %%eax, %1\n\t"                                    \
             "movl %%edx, %2\n\t"                                    \

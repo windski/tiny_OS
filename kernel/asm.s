@@ -6,7 +6,6 @@
 
 # flag here..
 .global coprocessor_error, parallel_interrupt, device_not_available
-.global test_timer_interrupt
 
 
 divide_error:
@@ -20,9 +19,9 @@ no_error_code:
     pushl %edi
     pushl %esi
     pushl %ebp
-    pushw %ds
-    pushw %es
-    pushw %fs
+    push %ds
+    push %es
+    push %fs
     pushl $0                # error code = 0
     lea 44(%esp), %edx
 
@@ -33,9 +32,9 @@ no_error_code:
     movw %dx, %fs
     call *%eax
     addl $8, %esp           # 丢弃最后入栈的两个参数, 让栈指针回到 %fs 中
-    popw %fs
-    popw %es
-    popw %ds
+    pop %fs
+    pop %es
+    pop %ds
     popl %ebp
     popl %esi
     popl %edi
@@ -103,9 +102,9 @@ error_code:
     pushl %esi
     pushl %edi
     pushl %ebp
-    pushw %ds
-    pushw %fs
-    pushw %es
+    pushl %ds
+    pushl %fs
+    pushl %es
     pushl %eax
     lea 44(%esp), %eax
     pushl %eax
@@ -115,13 +114,14 @@ error_code:
     movw %ax, %fs
     call *%ebx
     addl $8, %esp
-    popw %es
-    popw %fs
-    popw %ds
-    popl %ebp
+    pop %fs
+    pop %es
+    pop %ds
+    pop %ebp
     popl %edi
     popl %esi
     popl %edx
+    popl %ecx
     popl %ebx
     popl %eax
     iret
@@ -141,11 +141,6 @@ stack_segment:
 general_protection:
     pushl $do_general_protection
     jmp error_code
-
-# for test
-test_timer_interrupt:
-    pushl $do_timer
-    jmp no_error_code
 
 
 # coprocessor error 

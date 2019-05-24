@@ -19,21 +19,29 @@ struct task_struct *current = &(init_task);
 long user_task[PAGE_SIZE >> 2];
 long startup_time;
 
+
+struct {
+    long *a;
+    short b;
+} start_stack = {&user_task[PAGE_SIZE >> 2], 0x10};
+
+
+
 int count = 0;
-long volatile j = 0;
+long volatile jiffies = 0;
 void do_timer(long cpl)
 {
-    j++;
     count++;
     if(count == 10) {
-        printk("jiffies = %d\n", j);
+        printk("jiffies = %d\n", jiffies);
         count = 0;
     }
     outb(0x20, 0x20);
 }
 
 
-void test_timer_interrupt(void);
+// defined in `system_call.s`
+void timer_interrupt(void);
 
 void init_timer()
 {
@@ -47,7 +55,7 @@ void init_timer()
     outb(division >> 8, 0x40);
 
     // 设置时钟中断处理句柄
-    set_intr_gate(0x20, &test_timer_interrupt);
+    set_intr_gate(0x20, &timer_interrupt);
     // 修改中断控制器屏蔽码,允许时钟中断
     outb(inb_p(0x21) & ~0x01, 0x21);
 }
