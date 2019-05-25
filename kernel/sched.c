@@ -5,7 +5,21 @@
 #include <asm/system.h>
 #include <asm/io.h>
 #include <linux/sched.h>
+#include <linux/sys.h>
 
+
+// TODO: prepar moving the following to `fork.c'
+void find_empty_process(void)
+{
+
+}
+
+void copy_process(void)
+{
+
+}
+
+// --------------
 
 union task_union {
     struct task_struct task;
@@ -14,7 +28,7 @@ union task_union {
 
 static union task_union init_task = {INIT_TASK, };
 
-struct task_struct *current = &(init_task);
+struct task_struct *current = &(init_task.task);
 
 long user_task[PAGE_SIZE >> 2];
 long startup_time;
@@ -41,9 +55,19 @@ void do_timer(long cpl)
 
 
 // defined in `system_call.s`
-void timer_interrupt(void);
+extern void timer_interrupt(void);
+extern int system_call();
 
-void init_timer()
+
+int sys_pause(void)
+{
+    current->state = TASK_INTERRUPTIBLE;
+    schedule();
+    return 0;
+}
+
+
+void sched_init()
 {
     int division = 1193180 / HZ;
 
@@ -58,5 +82,12 @@ void init_timer()
     set_intr_gate(0x20, &timer_interrupt);
     // 修改中断控制器屏蔽码,允许时钟中断
     outb(inb_p(0x21) & ~0x01, 0x21);
+}
+
+
+void schedule(void)
+{
+    // TODO:
+
 }
 

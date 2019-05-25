@@ -16,7 +16,7 @@ A TINY OPERATING SYSTEM..233333
 
 debian:
 ```
-sudo apt-get install qemu build-essential
+sudo apt-get install qemu qemu-system-x86 build-essential
 ```
 
 ------------------------

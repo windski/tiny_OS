@@ -20,6 +20,12 @@
 #include <linux/head.h>
 #include <linux/mm.h>
 
+
+typedef int (*fn_ptr)();
+
+
+extern void schedule(void);
+
 // 数学协处理器使用的结构, 主要用于保存进程切换时i387的状态
 struct i387_struct {
     // Control word

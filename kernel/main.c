@@ -6,7 +6,8 @@ extern int video_y;
 
 extern void mem_init(unsigned long, unsigned long);
 extern void mmtest_main(void);
-extern void print_mminfo(unsigned long);
+extern void trap_init(void);
+extern void sched_init();
 
 void main()
 {
@@ -14,9 +15,8 @@ void main()
     printk("Hello World\n");
     printk(" :) \nWelcome to my Operating System!(NO, lol)\n");
 
-    /* sched_init(); */
     trap_init();
-    init_timer();
+    sched_init();
 
     mem_init(0x100000, 0x3000000);
     /* mmtest_main(); */
