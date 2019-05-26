@@ -97,7 +97,7 @@ struct task_struct {
     long alarm;
     // 用户态运行时间, 系统态.., 子进程用户态.., 子进程系统态..,
     long utime, stime, cutime, cstime;
-    long satrt_time;
+    long start_time;
     unsigned short used_math;
 
     // file system
@@ -138,13 +138,21 @@ struct task_struct {
 }
 
 
+extern struct task_struct *task[NR_TASK];
+extern struct task_struct *last_used_math;
+extern struct task_struct *current;
+
+
+extern long volatile jiffies;
+
+
 #define FIRST_TSS_ENTRY 4
 #define FIRST_LDT_ENTRY (FIRST_TSS_ENTRY + 1)
 
 // 在全局表中的第n个任务的TSS描述符的索引号
 // 第一个TSS的入口为4 << 3
-#define _TSS(n) ((((unsigned long) n) << 4) + (FIRST_TSS_ENTRY) << 3)
-#define _LDT(n) ((((unsigned long) n) << 4) + (FIRST_LDT_ENTRY) << 3)
+#define _TSS(n) ((((unsigned long) n) << 4) + (FIRST_TSS_ENTRY << 3))
+#define _LDT(n) ((((unsigned long) n) << 4) + (FIRST_LDT_ENTRY << 3))
 
 // 加载第n个任务的任务管理器tr
 #define ltr(n) volatile __asm__("ltr %%eax" :: "a"(_TSS(n)))
@@ -181,14 +189,15 @@ struct task_struct {
 // 设置位于地址addr 处描述符中的各基地址字段(基地址是`base')
 // %0 -> addr + 2; %1 -> addr + 4; %2 -> addr + 7; edx -> base
 #define _set_base(addr, base)                   \
-    __asm__ volatile ("movw %%dx, %0\n\t"       \
+    __asm__ volatile("movw %%dx, %0\n\t"        \
             "rorl $16, %%edx\n\t"               \
             "movb %%dl, %1\n\t"                 \
             "movb %%dh, %2"                     \
             :: "m" (*((addr) + 2)),             \
              "m" (*((addr) + 4)),               \
              "m" (*((addr) + 7)),               \
-             "d" (base) : "dx"                  \
+             "d" (base)                         \
+            /*: "dx"*/                          \
             )
 
 
@@ -201,7 +210,7 @@ struct task_struct {
             "orb %%dh, %%dl\n\t"            \
             "movb %%dl, %1"                 \
             ::"m"(*(addr)), "m"(*(addr) + 6)\
-            "d" (limit) : "dx"              \
+            "d" (limit)                     \
             )
 
 
@@ -219,7 +228,7 @@ struct task_struct {
             "movb %2, %%dl\n\t"     \
             "shll $16, %%edx\n\t"   \
             "movw %1, %%dx\n\t"     \
-            : "=d" (__base);        \
+            : "=d" (__base)         \
             : "m" ( *((addr) + 2) ),\
             "m" ( *((addr) + 4) ),  \
             "m" ( *((addr) + 7) )   \

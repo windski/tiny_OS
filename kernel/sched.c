@@ -7,19 +7,8 @@
 #include <linux/sched.h>
 #include <linux/sys.h>
 
+#include <stddef.h>
 
-// TODO: prepar moving the following to `fork.c'
-void find_empty_process(void)
-{
-
-}
-
-void copy_process(void)
-{
-
-}
-
-// --------------
 
 union task_union {
     struct task_struct task;
@@ -29,6 +18,8 @@ union task_union {
 static union task_union init_task = {INIT_TASK, };
 
 struct task_struct *current = &(init_task.task);
+struct task_struct *last_used_math = NULL;
+struct task_struct *task[NR_TASK] = {&(init_task.task), };
 
 long user_task[PAGE_SIZE >> 2];
 long startup_time;
@@ -38,7 +29,6 @@ struct {
     long *a;
     short b;
 } start_stack = {&user_task[PAGE_SIZE >> 2], 0x10};
-
 
 
 int count = 0;
