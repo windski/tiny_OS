@@ -61,6 +61,10 @@ void sched_init()
 {
     int division = 1193180 / HZ;
 
+    int i;
+    struct task_struct *p;
+
+
     // binary mode 3, LSB/MSB, ch0
     outb_p(0x36, 0x43);
     // LSB

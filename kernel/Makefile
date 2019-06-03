@@ -1,8 +1,4 @@
-CC = gcc
-AS = as
-LD = ld
-OBJCOPY = objcopy
-STRIP = strip
+include ../Makefile.header
 
 OBJS = printk.o main.o panic.o asm.o traps.o sched.o system_call.o fork.o
 

@@ -3,3 +3,7 @@ LD = ld
 OBJCOPY = objcopy
 STRIP = strip
 CC = gcc -m32 -march=i386
+
+ALLWARN = -Wall -Wextra -Waddress -Wconversion
+CFLAGS= -g -m32 -fno-builtin -fno-stack-protector -fomit-frame-pointer -fstrength-reduce # $(ALLWARN)
+

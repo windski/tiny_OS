@@ -71,7 +71,7 @@ copy_process(int nr, long ebp, long edi, long esi, long gs, long none,
         long eip, long cs, long eflags, long esp, long ss)
 {
     struct task_struct *p;
-    int i;
+    /* int i; */
 
     p = (struct task_struct *)get_free_page();
     if(!p) {
@@ -129,8 +129,8 @@ copy_process(int nr, long ebp, long edi, long esi, long gs, long none,
     }
 
 
-    /* set_tss_desc(_gdt + (nr << 1) + FIRST_TSS_ENTRY, &(p->tss)); */
-    /* set_ldt_desc(_gdt + (nr << 1) + FIRST_LDT_ENTRY, &(p->ldt)); */
+    set_tss_desc(_gdt + (nr << 1) + FIRST_TSS_ENTRY, &(p->tss));
+    set_ldt_desc(_gdt + (nr << 1) + FIRST_LDT_ENTRY, &(p->ldt));
 
     p->state = TASK_RUNNING;
     return last_pid;
